@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 int main(void){
 
@@ -16,18 +17,32 @@ int main(void){
         i++;
         triNum += i;
         numFactors = 0;
-        //all factors will be at most half the number
-        for(j = 1; j <= ((triNum >> 1) + 1) ; j++){
-            //printf("%d %% %d = %d\n", triNum, j, (triNum%j));
+
+        /*
+        Every factor has a pair; 1 and the number itself,
+        possibly 2 and half the number, possibly 3 and a third of the number (triNum).
+        By identifying the maximum possible factor, I can reduce runtime.
+        This optimization will prevent checking all numbers above triNum divided
+        by the first found factor.
+        */
+        //start off assumeing the triangle number is divisible by 2
+        uint32_t maxPossibleFactor = triNum;
+        bool firstFactorFound = false;
+        for(j = 2; j<= maxPossibleFactor; j++){
             if((triNum % j) == 0){
                 numFactors++;
+                if(firstFactorFound == false){
+                    firstFactorFound = true;
+                    maxPossibleFactor = triNum/j;
+                }
+            }else if(firstFactorFound == false){
+                maxPossibleFactor = triNum / (j + 1);
             }
         }
-        //add one more because a number divides itself in this problem
-        numFactors++;
+        //Add two more because we count a number divided by itself and 1  in this problem
+        numFactors += 2;
         if(numFactors > maxNumFactors){
             maxNumFactors = numFactors;
-            printf("%d has %d factors\n", triNum, numFactors);
             printf("sanity check i: %d numFactors: %d triNum: %d\n",i,numFactors, triNum);
         }
         //print every 100ths value for snaity check

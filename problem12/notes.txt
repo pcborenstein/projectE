@@ -1,0 +1,2 @@
+Initial solution took 6:44
+After considering the maximum possible factor: 4:42

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <time.h>
 
 int main(void){
 
@@ -12,6 +13,8 @@ int main(void){
 
     i = 1;
     triNum = i;
+
+    clock_t begin = clock();
 
     do{
         i++;
@@ -25,7 +28,6 @@ int main(void){
         This optimization will prevent checking all numbers above triNum divided
         by the first found factor.
         */
-        //start off assumeing the triangle number is divisible by 2
         uint32_t maxPossibleFactor = triNum;
         bool firstFactorFound = false;
         for(j = 2; j<= maxPossibleFactor; j++){
@@ -43,14 +45,14 @@ int main(void){
         numFactors += 2;
         if(numFactors > maxNumFactors){
             maxNumFactors = numFactors;
-            printf("sanity check i: %d numFactors: %d triNum: %d\n",i,numFactors, triNum);
         }
-        //print every 100ths value for snaity check
-        if((i % 1000) == 0)
-            printf("sanity check i: %d numFacotrs: %d triNum: %d\n",i,numFactors, triNum);
     }while(numFactors < 500);
 
+    clock_t end = clock();
+    double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+
     printf("Triangle number %d has %d factors\n", triNum, numFactors);
+    printf("Took %f seconds\n", time_spent);
 
     return EXIT_SUCCESS;
 }

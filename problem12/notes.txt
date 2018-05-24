@@ -1,2 +1,3 @@
 Initial solution took 6:44
 After considering the maximum possible factor: 4:42
+After considering the max possible factor is the square root: 0.12 seconds

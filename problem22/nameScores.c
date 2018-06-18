@@ -44,16 +44,35 @@ int main(void){
 
     char * namesSorted;
 
-    //namesSorted = mergeSort(&namesUnsorted[0][0], nameCount);
 
+#define SORT_COUNT  (1000)
     int i;
-    for(i = 0; i < 5; i++)
-        printf("%s\n", namesUnsorted[i]);
+    for(i = 0; i < 0; i++)
+        printf("%d : %s\n", i, namesUnsorted[i]);
 
-    namesSorted = selectSort(&namesUnsorted[0][0], 5);
-    for(i = 0; i < 5; i++)
-        printf("%s\n", &namesSorted[i * 20]);
 
+    //char namesUnsorted2[SORT_COUNT][20] = {"AMY", "ANNA", "REBECCA", "VIRGINIA", "KATHLEEN", "PAMELA"};
+    //namesSorted = selectSort(&namesUnsorted[0][0], 5);
+    namesSorted = mergeSort(&namesUnsorted[0][0], nameCount);
+
+    printf("\nAfter sort: \n");
+    int nameLen;
+    int j;
+    int nameSum;
+    uint64_t totalSum = 0;
+    for(i = 0; i < nameCount; i++){
+        nameSum = 0;
+        nameLen = strlen(&namesSorted[i * 20]);
+        for(j = 0; j < nameLen; j++)
+            nameSum += (namesSorted[i * 20 + j] - 'A' + 1);
+        nameSum *= (i + 1);
+        totalSum += nameSum;
+        printf("%4d %11s %6d\n", (i+1), &namesSorted[i * 20], nameSum);
+    }
+    printf("grand total: %ld\n", totalSum);
+
+
+    /*
     char namesUnsorted2[5][20] = {"cbd", "aab", "aa", "aaa"};
     for(i = 0; i < 4; i++)
         printf("%s\n", namesUnsorted2[i]);
@@ -61,11 +80,19 @@ int main(void){
     char * namesSorted2 = selectSort(&namesUnsorted2[0][0], 4);
     for(i = 0; i < 5; i++)
         printf("%s\n", &namesSorted2[i * 20]);
+        */
     exit(EXIT_SUCCESS);
 }
 
 char * mergeSort(char * nameList, int listLen){
 
+    int i;
+
+    /*
+    printf("\nAll names recieved:\n");
+    for(i = 0; i < listLen; i++)
+        printf("%d %s\n",i, &nameList[i * 20]);
+    */
     if(listLen > 3){
         int len1, len2;
         len1 = listLen / 2;
@@ -75,9 +102,28 @@ char * mergeSort(char * nameList, int listLen){
         list1 = malloc(len1 * 20);
         list2 = malloc(len2 * 20);
         memcpy(list1, nameList, len1 * 20);
-        memcpy(list2, &nameList[len2 * 20], len2 * 20);
+        memcpy(list2, &nameList[len1 * 20], len2 * 20);
+        /*
+        printf("breaking list %d into %d and %d lists\n", listLen, len1, len2);
+        printf("\nUnsorted list 1:\n");
+        for(i = 0; i < len1; i++)
+            printf("%d %s\n",i, &list1[i * 20]);
+        printf("\n");
+        printf("\nUnsorted list 2:\n");
+        for(i = 0; i < len2; i++)
+            printf("%d %s\n",i, &list2[i * 20]);
+        printf("\n");
+        */
         sortedList1 = mergeSort(list1, len1);
         sortedList2 = mergeSort(list2, len2);
+        /*
+        printf("\nRetuned two soted lists sort for:\n");
+        for(i = 0; i < len1; i++)
+            printf("%d %s\n",i, &sortedList1[i * 20]);
+        printf("and:\n");
+        for(i = 0; i < len2; i++)
+            printf("%d %s\n", i, &sortedList2[i * 20]);
+        */
         free(list1);
         free(list2);
         char * sortedList;
@@ -86,7 +132,7 @@ char * mergeSort(char * nameList, int listLen){
         int nameIndex1 = 0;
         int nameIndex2 = 0;
         int charIndex;
-        while((nameIndex1 != len1) && (nameIndex2 != len2)){
+        while((nameIndex1 != len1) || (nameIndex2 != len2)){
             //if we have readched the len of either list
             if(nameIndex1 == len1){
                 strncpy(&sortedList[(nameIndex1 + nameIndex2) * 20], &sortedList2[nameIndex2 * 20], 20);
@@ -129,12 +175,31 @@ char * mergeSort(char * nameList, int listLen){
 
                  }while(1);
             }
-
-
         }
-    }else{
-        return selectSort(nameList, listLen);
+        /*
+        printf("name indexes %d == %d, %d == %d\n", nameIndex1, len1, nameIndex2, len2);
+        printf("\ncombined lists\n");
+        for(i = 0; i < listLen; i++)
+            printf("%d %s\n", i, &sortedList[i * 20]);
+            */
 
+        free(sortedList1);
+        free(sortedList2);
+        return sortedList;
+    }else{
+        /*
+        printf("\nBegining select sort for:\n");
+        for(i = 0; i < listLen; i++)
+            printf("%s\n", &nameList[i * 20]);
+            */
+
+        char * smallSorted = selectSort(nameList, listLen);
+        /*
+        printf("\nAfter select sort:\n");
+        for(i = 0; i < listLen; i++)
+            printf("%s\n", &smallSorted[i * 20]);
+            */
+        return smallSorted;
     }
 }
 
@@ -155,20 +220,26 @@ char * selectSort(char * nameList, int listLen){
     while(namesSorted < listLen){
         smallestValue = 0x7f;
 
-        for(i = 0; i < listLen; i++)
-            considered[i] = false;
-
-        for(i = 0; i < listLen; i++)
+        for(i = 0; i < listLen; i++){
+            if((charIndex > 0) && (considered[i] == false))
+                continue;
             if((picked[i] == false) && (nameList[i*20 + charIndex] < smallestValue))
                 smallestValue = nameList[i*20 + charIndex];
+        }
 
+        //printf("smallesValue %c, %d\n", (char)smallestValue, (int)smallestValue);
         namesConsidered = 0;
         //find all names with smallestValue
-        for(i = 0; i < listLen; i++)
+        for(i = 0; i < listLen; i++){
+            if((charIndex > 0) && (considered[i] == false))
+                continue;
             if((picked[i] == false) && (nameList[i*20 + charIndex] == smallestValue)){
                 considered[i] = true;
                 namesConsidered++;
+            }else{
+                considered[i] = false;
             }
+        }
         if(namesConsidered == 1){
             //only one name has the lowest character
             for(i = 0; i < listLen; i++)
